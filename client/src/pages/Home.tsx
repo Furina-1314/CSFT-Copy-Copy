@@ -11,6 +11,7 @@ import ProfilePage from "@/components/ProfilePage";
 import CalendarView from "@/components/CalendarView";
 import DialogBubble from "@/components/DialogBubble";
 import FloatingParticles from "@/components/FloatingParticles";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   FileText,
   BookText,
@@ -112,12 +113,22 @@ export default function Home() {
 
       {/* 顶部中间工具栏 */}
       <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 flex gap-2">
-        <button onClick={() => setShowCalendar(true)} className="p-2.5 rounded-xl bg-white/80 shadow-lg hover:bg-white transition-colors text-gray-600" data-tooltip="日历" data-tooltip-pos="bottom">
-          <Calendar size={20} />
-        </button>
-        <button onClick={() => setShowProfile(true)} className="p-2.5 rounded-xl bg-white/80 shadow-lg hover:bg-white transition-colors text-gray-600" data-tooltip="个人中心" data-tooltip-pos="bottom">
-          <User size={20} />
-        </button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button onClick={() => setShowCalendar(true)} className="p-2.5 rounded-xl bg-white/80 shadow-lg hover:bg-white transition-colors text-gray-600">
+              <Calendar size={20} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" sideOffset={6}>日历</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button onClick={() => setShowProfile(true)} className="p-2.5 rounded-xl bg-white/80 shadow-lg hover:bg-white transition-colors text-gray-600">
+              <User size={20} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" sideOffset={6}>个人中心</TooltipContent>
+        </Tooltip>
       </div>
 
       {/* 桌面端布局 */}
