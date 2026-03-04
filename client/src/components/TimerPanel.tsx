@@ -247,7 +247,7 @@ export default function TimerPanel({ compact = false }: TimerPanelProps) {
       </div>
 
       <div className="flex items-center justify-center gap-4 shrink-0 mt-2">
-        <button
+        {hasRoundStarted?(<button
           onClick={handleQuickAction}
           disabled={isSkipLocked}
           className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isSkipLocked ? "bg-gray-100 text-gray-300 cursor-not-allowed" : "bg-gray-100 hover:bg-gray-200"}`}
@@ -255,7 +255,8 @@ export default function TimerPanel({ compact = false }: TimerPanelProps) {
         >
           <FastForward size={20} className={isSkipLocked ? "text-gray-300" : "text-gray-600"} />
         </button>
-
+        ):null}
+        
         <button onClick={isRunning ? pause : start} className={`relative z-30 w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-95 ${isRunning ? "bg-amber-400 hover:bg-amber-500 text-white" : mode === "focus" ? "bg-emerald-500 hover:bg-emerald-600 text-white" : "bg-amber-500 hover:bg-amber-600 text-white"}`}>
           {isRunning ? <Pause size={32} /> : <Play size={32} className="ml-1" />}
         </button>
