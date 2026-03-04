@@ -33,6 +33,13 @@ export interface NoteEntry {
   updatedAt: string;
 }
 
+export interface StickyNote {
+  id: string;
+  noteId: string;
+  x: number;
+  y: number;
+}
+
 export interface HabitEntry {
   id: string;
   name: string;
@@ -118,6 +125,7 @@ export interface GameState {
 
   // Notes
   notes: NoteEntry[];
+  stickyNotes: StickyNote[];
 
   // Habits
   habits: HabitEntry[];
@@ -383,6 +391,9 @@ type GameAction =
   | { type: "ADD_NOTE"; payload: { content: string } }
   | { type: "UPDATE_NOTE"; payload: { id: string; content: string } }
   | { type: "DELETE_NOTE"; payload: string }
+  | { type: "ADD_STICKY_NOTE"; payload: { noteId: string; x: number; y: number } }
+  | { type: "MOVE_STICKY_NOTE"; payload: { id: string; x: number; y: number } }
+  | { type: "CLOSE_STICKY_NOTE"; payload: string }
   | { type: "ADD_HABIT"; payload: { name: string } }
   | { type: "TOGGLE_HABIT"; payload: string }
   | { type: "DELETE_HABIT"; payload: string }
@@ -440,6 +451,7 @@ const initialState: GameState = {
   memoTags: ["学习", "待查", "论文"],
   showDoneMemos: false,
   notes: [],
+  stickyNotes: [],
   habits: [],
   diaryEntries: {},
   customBackground: null,
@@ -730,7 +742,44 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       };
 
     case "DELETE_NOTE":
-      return { ...state, notes: state.notes.filter((note) => note.id !== action.payload) };
+      return {
+        ...state,
+        notes: state.notes.filter((note) => note.id !== action.payload),
+        stickyNotes: state.stickyNotes.filter((sticky) => sticky.noteId !== action.payload),
+      };
+
+    case "ADD_STICKY_NOTE": {
+      const exists = state.notes.some((n) => n.id === action.payload.noteId);
+      if (!exists) return state;
+      return {
+        ...state,
+        stickyNotes: [
+          ...state.stickyNotes,
+          {
+            id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            noteId: action.payload.noteId,
+            x: action.payload.x,
+            y: action.payload.y,
+          },
+        ],
+      };
+    }
+
+    case "MOVE_STICKY_NOTE":
+      return {
+        ...state,
+        stickyNotes: state.stickyNotes.map((sticky) =>
+          sticky.id === action.payload.id
+            ? { ...sticky, x: action.payload.x, y: action.payload.y }
+            : sticky
+        ),
+      };
+
+    case "CLOSE_STICKY_NOTE":
+      return {
+        ...state,
+        stickyNotes: state.stickyNotes.filter((sticky) => sticky.id !== action.payload),
+      };
 
     case "SET_DIARY_ENTRY":
       return {

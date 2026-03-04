@@ -466,18 +466,32 @@ export default function SoundPanel() {
     const files = e.target.files;
     if (!files) return;
 
+    const existingKeys = new Set(
+      state.musicTracks.map((track) => `${track.name.toLowerCase()}|${track.size ?? "unknown"}`)
+    );
+    const seenInBatch = new Set<string>();
+    let duplicateCount = 0;
+
     await Promise.all(
       Array.from(files).map(async (file) => {
         if (!file.type.startsWith("audio/")) return;
-        
-        const id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+
         const name = file.name.replace(/\.[^/.]+$/, "");
-        
+        const key = `${name.toLowerCase()}|${file.size}`;
+
+        if (existingKeys.has(key) || seenInBatch.has(key)) {
+          duplicateCount += 1;
+          return;
+        }
+
+        seenInBatch.add(key);
+        const id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+
         try {
           await saveMusicFile(id, name, file);
-          dispatch({ 
-            type: "ADD_MUSIC_TRACK", 
-            payload: { file, id, name } 
+          dispatch({
+            type: "ADD_MUSIC_TRACK",
+            payload: { file, id, name }
           });
         } catch (err) {
           console.error("Failed to save music file:", err);
@@ -485,6 +499,10 @@ export default function SoundPanel() {
         }
       })
     );
+
+    if (duplicateCount > 0) {
+      alert(`检测到 ${duplicateCount} 首重复音乐，已自动跳过`);
+    }
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
