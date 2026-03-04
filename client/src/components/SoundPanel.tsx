@@ -500,9 +500,9 @@ export default function SoundPanel() {
       })
     );
 
-    if (duplicateCount > 0) {
+    /*if (duplicateCount > 0) {
       alert(`检测到 ${duplicateCount} 首重复音乐，已自动跳过`);
-    }
+    } */      //这里的提示不需要，自动略过即可。
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -937,9 +937,10 @@ export default function SoundPanel() {
               ) : (
                 state.musicTracks.map((track, index) => {
                   const isCurrent = state.currentMusicId === track.id;
-                  const savedProgress = state.musicProgress[track.id] || 0;
+                  //const savedProgress = state.musicProgress[track.id] || 0;
                   // 当前播放歌曲使用实时进度，其他歌曲使用保存的进度
-                  const displayTime = isCurrent ? currentTime : savedProgress;
+                  //const displayTime = isCurrent ? currentTime : savedProgress;
+                 const displayTime = isCurrent ? currentTime : 0; // 其他歌曲均从头开始，目前没有需要保存历史进度的情况
                   // 对于非当前歌曲，尝试从track获取duration（如果之前加载过）
                   const displayDuration = isCurrent ? duration : (track.duration || 0);
                   

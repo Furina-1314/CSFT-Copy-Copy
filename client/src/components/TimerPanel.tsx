@@ -38,7 +38,7 @@ function HistoryModal({ sessions, totalMinutes, totalAffection, onClose }: {
 
   const formatDate = (iso: string) => {
     const d = new Date(iso);
-    return `${d.getMonth() + 1}/${d.getDate()}`;
+    return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
   };
 
   const formatTime = (iso: string) => {
@@ -60,7 +60,7 @@ function HistoryModal({ sessions, totalMinutes, totalAffection, onClose }: {
 
       <div className="flex items-center justify-around mb-2 pb-2 border-b border-gray-100 shrink-0 text-sm">
         <div className="text-center"><span className="font-bold text-emerald-600">{sessions.length}</span><span className="text-gray-500 text-xs ml-1">次</span></div>
-        <div className="text-center"><span className="font-bold text-blue-600">{totalMinutes}</span><span className="text-gray-500 text-xs ml-1">分钟</span></div>
+        <div className="text-center"><span className="font-bold text-blue-600">{Math.floor(totalMinutes)}</span><span className="text-gray-500 text-xs ml-1">分钟</span></div>
         <div className="text-center"><span className="font-bold text-pink-600">{totalAffection}</span><span className="text-gray-500 text-xs ml-1">好感</span></div>
       </div>
 
@@ -89,9 +89,8 @@ function HistoryModal({ sessions, totalMinutes, totalAffection, onClose }: {
                   {isExpanded && (
                     <div className="px-2 pb-2 pt-0 text-xs space-y-1">
                       <div className="flex justify-between text-gray-500"><span>开始时间</span><span className="text-gray-700">{formatDate(s.startTime)} {formatTime(s.startTime)}</span></div>
-                      <div className="flex justify-between text-gray-500"><span>专注时长</span><span className="text-emerald-600 font-medium">{s.duration} 分钟</span></div>
+                      <div className="flex justify-between text-gray-500"><span>专注时长</span><span className="text-emerald-600 font-medium">{Math.floor(s.duration)} 分钟</span></div>
                       <div className="flex justify-between text-gray-500"><span>获得好感</span><span className="text-pink-500 font-medium">+{affectionGain} ❤️</span></div>
-                      <div className="flex justify-between text-gray-500"><span>完成状态</span><span className="text-emerald-600">{s.completed ? "✓ 已完成" : "未完成"}</span></div>
                     </div>
                   )}
                 </div>
@@ -208,7 +207,6 @@ export default function TimerPanel({ compact = false }: TimerPanelProps) {
             <input type="number" min="1" max="12" value={customCycles} onChange={(e) => setCustomCycles(e.target.value)} placeholder="自定义轮数" className="w-full px-2.5 py-1 rounded-lg bg-gray-100 text-xs placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-300" />
           </div>
 
-          <div className="bg-blue-50 rounded-xl p-2"><p className="text-[11px] text-blue-600 text-center">💡 快进可立即完成当前阶段，自动进入下一阶段</p></div>
         </div>
 
         <div className="pt-2 mt-2 border-t border-gray-200 shrink-0">
