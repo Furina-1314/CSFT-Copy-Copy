@@ -63,12 +63,14 @@ function StickyNotesOverlay({
   onMove,
   onUpdate,
   onClose,
+  onColor,
 }: {
   stickyNotes: StickyNoteEntry[];
   noteMap: Map<string, { id: string; content: string }>;
   onMove: (id: string, x: number, y: number) => void;
   onUpdate: (id: string, content: string) => void;
   onClose: (id: string) => void;
+  onColor: (id: string, color: string) => void;
 }) {
   return (
     <>
@@ -79,8 +81,8 @@ function StickyNotesOverlay({
         return (
           <div
             key={sticky.id}
-            className="absolute z-30 w-56 rounded-xl bg-yellow-100/95 border border-yellow-300 shadow-lg backdrop-blur-sm"
-            style={{ left: sticky.x, top: sticky.y }}
+            className="absolute z-30 w-56 rounded-xl border border-gray-200 shadow-lg backdrop-blur-sm"
+            style={{ left: sticky.x, top: sticky.y, backgroundColor: sticky.color || "#ffffff" }}
           >
             <div
               className="flex items-center justify-between px-2 py-1 bg-yellow-200/80 rounded-t-xl cursor-move"
@@ -102,8 +104,19 @@ function StickyNotesOverlay({
                 document.addEventListener("mouseup", handleUp);
               }}
             >
-              <span className="text-[10px] text-yellow-700 font-semibold">便利贴</span>
-              <button onClick={() => onClose(sticky.id)} className="p-1 rounded hover:bg-yellow-300/70 text-yellow-700">
+              <div className="flex items-center gap-1">
+                <span className="text-[10px] text-gray-700 font-semibold">便利贴</span>
+                {["#ffffff", "#fff4b2", "#ffd9e8", "#d9f0ff", "#e6ffd9"].map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => onColor(sticky.id, color)}
+                    className={`w-3.5 h-3.5 rounded-full border ${sticky.color === color ? "border-gray-700" : "border-gray-300"}`}
+                    style={{ backgroundColor: color }}
+                    title="设置便利贴颜色"
+                  />
+                ))}
+              </div>
+              <button onClick={() => onClose(sticky.id)} className="p-1 rounded hover:bg-gray-200/70 text-gray-700">
                 <X size={12} />
               </button>
             </div>
@@ -160,15 +173,17 @@ export default function Home() {
       {/* 背景层 */}
       <div className="absolute inset-0 pointer-events-none">
         {/* 随机背景图（50%概率显示 clouds-bg 或 hero-bg）*/}
-        <div 
-          className="absolute inset-0 opacity-35" 
-          style={{ 
-            backgroundImage: `url(${RANDOM_BG})`, 
-            backgroundSize: "cover", 
-            backgroundPosition: IS_CLOUDS ? "center" : "center bottom",
-            maskImage: undefined
-          }} 
-        />
+        {!state.customBackground && (
+          <div
+            className="absolute inset-0 opacity-35"
+            style={{
+              backgroundImage: `url(${RANDOM_BG})`,
+              backgroundSize: "cover",
+              backgroundPosition: IS_CLOUDS ? "center" : "center bottom",
+              maskImage: undefined,
+            }}
+          />
+        )}
         {/* 自定义背景（如果有）*/}
         <CustomBackground />
       </div>
@@ -275,6 +290,7 @@ export default function Home() {
             onMove={(id, x, y) => dispatch({ type: "MOVE_STICKY_NOTE", payload: { id, x, y } })}
             onUpdate={(id, content) => dispatch({ type: "UPDATE_NOTE", payload: { id, content } })}
             onClose={(id) => dispatch({ type: "CLOSE_STICKY_NOTE", payload: id })}
+            onColor={(id, color) => dispatch({ type: "SET_STICKY_NOTE_COLOR", payload: { id, color } })}
           />
         </div>
 

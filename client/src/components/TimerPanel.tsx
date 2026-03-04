@@ -1,7 +1,7 @@
 import { usePomodoro } from "@/hooks/usePomodoro";
 import { useGame, FocusSession } from "@/contexts/GameContext";
 import { Play, Pause, FastForward, Settings, X, History, ChevronDown, ChevronUp, Heart, Square } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 interface TimerPanelProps {
   compact?: boolean;
@@ -111,6 +111,7 @@ export default function TimerPanel({ compact = false }: TimerPanelProps) {
   const [showHistory, setShowHistory] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [showCycleEndCelebration, setShowCycleEndCelebration] = useState(false);
+  const lastCycleMarkRef = useRef(state.lastCycleCompletionMark);
   const [customPomodoro, setCustomPomodoro] = useState(String(state.pomodoroMinutes));
   const [customBreak, setCustomBreak] = useState(String(state.breakMinutes));
   const [customCycles, setCustomCycles] = useState(String(state.pomodoroCycles));
@@ -127,7 +128,10 @@ export default function TimerPanel({ compact = false }: TimerPanelProps) {
 
   useEffect(() => {
     if (!state.lastCycleCompletionMark) return;
-    setShowCycleEndCelebration(true);
+    if (state.lastCycleCompletionMark > lastCycleMarkRef.current) {
+      setShowCycleEndCelebration(true);
+    }
+    lastCycleMarkRef.current = state.lastCycleCompletionMark;
   }, [state.lastCycleCompletionMark]);
 
   useEffect(() => {
@@ -140,6 +144,7 @@ export default function TimerPanel({ compact = false }: TimerPanelProps) {
   const handleCelebrationComplete = useCallback(() => setShowCelebration(false), []);
 
   const handleQuickAction = () => {
+    if (isRunning && state.skipButtonLocked) return;
     if (mode === "focus") {
       fastForward();
       return;
@@ -161,6 +166,7 @@ export default function TimerPanel({ compact = false }: TimerPanelProps) {
   const circumference = 2 * Math.PI * circleSize;
   const strokeDashoffset = circumference * (1 - progress);
   const progressColor = mode === "focus" ? "#10b981" : "#f59e0b";
+  const isSkipLocked = isRunning && state.skipButtonLocked;
 
   const totalFocusMinutesFromHistory = state.sessions.reduce((sum, s) => sum + s.duration, 0);
   const totalAffectionFromHistory = state.sessions.reduce((sum, s) => sum + Math.max(1, Math.floor(s.duration * 0.8)), 0);
@@ -238,8 +244,13 @@ export default function TimerPanel({ compact = false }: TimerPanelProps) {
       </div>
 
       <div className="flex items-center justify-center gap-4 shrink-0 mt-2">
-        <button onClick={handleQuickAction} className="w-12 h-12 rounded-full flex items-center justify-center transition-colors bg-gray-100 hover:bg-gray-200" title={mode === "focus" ? "快进当前番茄" : "结束休息"}>
-          <FastForward size={20} className="text-gray-600" />
+        <button
+          onClick={handleQuickAction}
+          disabled={isSkipLocked}
+          className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isSkipLocked ? "bg-gray-100 text-gray-300 cursor-not-allowed" : "bg-gray-100 hover:bg-gray-200"}`}
+          title={isSkipLocked ? "已锁定跳过/结束" : mode === "focus" ? "快进当前番茄" : "结束休息"}
+        >
+          <FastForward size={20} className={isSkipLocked ? "text-gray-300" : "text-gray-600"} />
         </button>
 
         <button onClick={isRunning ? pause : start} className={`relative z-30 w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-95 ${isRunning ? "bg-amber-400 hover:bg-amber-500 text-white" : mode === "focus" ? "bg-emerald-500 hover:bg-emerald-600 text-white" : "bg-blue-500 hover:bg-blue-600 text-white"}`}>
@@ -247,8 +258,13 @@ export default function TimerPanel({ compact = false }: TimerPanelProps) {
         </button>
 
         {isRunning ? (
-          <button onClick={endRound} className="w-12 h-12 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors" title="结束本局并结算">
-            <Square size={18} className="text-red-600 fill-red-600" />
+          <button
+            onClick={endRound}
+            disabled={isSkipLocked}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isSkipLocked ? "bg-gray-100 cursor-not-allowed" : "bg-red-100 hover:bg-red-200"}`}
+            title={isSkipLocked ? "已锁定结束" : "结束本局并结算"}
+          >
+            <Square size={18} className={isSkipLocked ? "text-gray-300 fill-gray-300" : "text-red-600 fill-red-600"} />
           </button>
         ) : (
           mode === "focus" && (

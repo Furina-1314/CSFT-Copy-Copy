@@ -38,6 +38,7 @@ export interface StickyNote {
   noteId: string;
   x: number;
   y: number;
+  color: string;
 }
 
 export interface HabitEntry {
@@ -394,6 +395,7 @@ type GameAction =
   | { type: "ADD_STICKY_NOTE"; payload: { noteId: string; x: number; y: number } }
   | { type: "MOVE_STICKY_NOTE"; payload: { id: string; x: number; y: number } }
   | { type: "CLOSE_STICKY_NOTE"; payload: string }
+  | { type: "SET_STICKY_NOTE_COLOR"; payload: { id: string; color: string } }
   | { type: "ADD_HABIT"; payload: { name: string } }
   | { type: "TOGGLE_HABIT"; payload: string }
   | { type: "DELETE_HABIT"; payload: string }
@@ -760,6 +762,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
             noteId: action.payload.noteId,
             x: action.payload.x,
             y: action.payload.y,
+            color: "#ffffff",
           },
         ],
       };
@@ -779,6 +782,14 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         stickyNotes: state.stickyNotes.filter((sticky) => sticky.id !== action.payload),
+      };
+
+    case "SET_STICKY_NOTE_COLOR":
+      return {
+        ...state,
+        stickyNotes: state.stickyNotes.map((sticky) =>
+          sticky.id === action.payload.id ? { ...sticky, color: action.payload.color } : sticky
+        ),
       };
 
     case "SET_DIARY_ENTRY":
