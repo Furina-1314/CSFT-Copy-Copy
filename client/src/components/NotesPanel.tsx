@@ -1,3 +1,4 @@
+//待办页
 import { useGame, type MemoEntry } from "@/contexts/GameContext";
 import { useState, useEffect, useRef } from "react";
 import { useDeleteConfirm } from "@/hooks/useDeleteConfirm";
@@ -282,7 +283,7 @@ export default function NotesPanel() {
                             {PRIORITY_CONFIG[memo.priority].icon} {memo.tag}
                           </span>
                         )}
-                        <span className="text-[10px] text-gray-400">{new Date(memo.updatedAt).toLocaleString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).replace(/\//g, "-")}</span>
+                        <span className="text-[10px] text-gray-400">{new Date(memo.updatedAt).toLocaleString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit"/*, hour: "2-digit", minute: "2-digit"*/ }).replace(/\//g, "-")}</span>
                       </div>
                     </>
                   )}
