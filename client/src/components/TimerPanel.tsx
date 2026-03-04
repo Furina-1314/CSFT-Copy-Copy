@@ -59,12 +59,11 @@ function HistoryModal({ sessions, totalMinutes, totalAffection, onClose }: {
       </div>
 
       <div className="flex items-center justify-around mb-2 pb-2 border-b border-gray-100 shrink-0 text-sm">
-        <div className="text-center"><span className="font-bold text-emerald-600">{sessions.length}</span><span className="text-gray-500 text-xs ml-1">次</span></div>
         <div className="text-center"><span className="font-bold text-blue-600">{Math.floor(totalMinutes)}</span><span className="text-gray-500 text-xs ml-1">分钟</span></div>
         <div className="text-center"><span className="font-bold text-pink-600">{totalAffection}</span><span className="text-gray-500 text-xs ml-1">好感</span></div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pr-0.5 -mx-1 px-1">
+      <div className="flex-1 overflow-y-auto py-1 pr-0.5 -mx-1 px-1">
         {recentSessions.length === 0 ? (
           <div className="text-center text-gray-400 py-8 text-sm">还没有专注记录，开始你的第一个番茄钟吧！</div>
         ) : (
@@ -76,7 +75,6 @@ function HistoryModal({ sessions, totalMinutes, totalAffection, onClose }: {
                 <div key={s.id} className={`rounded-lg transition-all ${isExpanded ? "bg-purple-50 ring-1 ring-purple-200" : "bg-gray-50 hover:bg-gray-100"}`}>
                   <button onClick={() => setExpandedId(isExpanded ? null : s.id)} className="w-full flex items-center justify-between py-1.5 px-2">
                     <div className="flex items-center gap-2">
-                      <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[9px] font-bold">{recentSessions.length - i}</span>
                       <span className="text-xs text-gray-500">{formatDate(s.startTime)}</span>
                       <span className="text-xs font-medium text-gray-700">{formatTime(s.startTime)}</span>
                     </div>
@@ -172,8 +170,10 @@ export default function TimerPanel({ compact = false }: TimerPanelProps) {
     || state.cycleAccumulatedFocusSeconds > 0
     || state.cycleAccumulatedPomodoros > 0;
 
-  const totalFocusMinutesFromHistory = state.sessions.reduce((sum, s) => sum + s.duration, 0);
-  const totalAffectionFromHistory = state.sessions.reduce((sum, s) => sum + Math.max(1, Math.floor(s.duration * 0.8)), 0);
+  //const totalFocusMinutesFromHistory = state.sessions.reduce((sum, s) => sum + s.duration, 0);
+  const totalFocusMinutesFromHistory = state.totalFocusMinutes; //直接使用当前总专注分钟数，避免重复计算历史记录时专注时间增益导致的误差  
+  //const totalAffectionFromHistory = state.sessions.reduce((sum, s) => sum + Math.max(1, Math.floor(s.duration * 0.8)), 0);
+  const totalAffectionFromHistory = state.affection; //直接使用当前好感度数值，避免重复计算历史记录时好感度增益导致的误差
 
   if (showHistory) {
     return (
@@ -226,7 +226,7 @@ export default function TimerPanel({ compact = false }: TimerPanelProps) {
         <span className="text-sm font-medium text-gray-700">{mode === "focus" ? "专注时间" : "休息时间"}</span>
         {state.sessionsCompleted > 0 && (
           <button onClick={() => setShowHistory(true)} className="text-[10px] text-purple-600 bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded-full ml-1 transition-colors flex items-center gap-1 border border-purple-200">
-            <History size={10} />已完成 {state.sessionsCompleted}
+            <History size={10} />专注记录
           </button>
         )}
       </div>
@@ -240,7 +240,7 @@ export default function TimerPanel({ compact = false }: TimerPanelProps) {
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
               <div className="text-5xl font-bold tracking-wider text-gray-800" style={{ fontFamily: "var(--font-mono)" }}>{formattedTime}</div>
-              <div className="text-xs text-gray-500 mt-2">{mode === "focus" ? `第 ${state.currentCycle}/${state.pomodoroCycles} 个番茄` : `☕ 第 ${state.currentCycle}/${state.pomodoroCycles} 轮休息`}</div>
+              <div className="text-xs text-gray-500 mt-2">{mode === "focus" ? `第 ${state.currentCycle}/${state.pomodoroCycles} 个番茄` : `☕ 第 ${state.currentCycle}/${state.pomodoroCycles - 1} 次休息`}</div>
             </div>
           </div>
         </div>
@@ -256,7 +256,7 @@ export default function TimerPanel({ compact = false }: TimerPanelProps) {
           <FastForward size={20} className={isSkipLocked ? "text-gray-300" : "text-gray-600"} />
         </button>
 
-        <button onClick={isRunning ? pause : start} className={`relative z-30 w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-95 ${isRunning ? "bg-amber-400 hover:bg-amber-500 text-white" : mode === "focus" ? "bg-emerald-500 hover:bg-emerald-600 text-white" : "bg-blue-500 hover:bg-blue-600 text-white"}`}>
+        <button onClick={isRunning ? pause : start} className={`relative z-30 w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-95 ${isRunning ? "bg-amber-400 hover:bg-amber-500 text-white" : mode === "focus" ? "bg-emerald-500 hover:bg-emerald-600 text-white" : "bg-amber-500 hover:bg-amber-600 text-white"}`}>
           {isRunning ? <Pause size={32} /> : <Play size={32} className="ml-1" />}
         </button>
 
