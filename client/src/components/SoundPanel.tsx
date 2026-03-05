@@ -332,7 +332,7 @@ function EmptyMusicState({ onUpload }: { onUpload: () => void }) {
       </div>
       <h4 className="text-sm font-medium text-gray-700 mb-1">还没有音乐</h4>
       <p className="text-xs text-gray-400 mb-4 max-w-[200px]">
-        添加您喜欢的音乐，在专注时聆听
+        添加您喜欢的音乐，在专注时聆听<br></br>也可以听听我们准备的音乐，就在music文件夹中哦
       </p>
       <button
         onClick={onUpload}
